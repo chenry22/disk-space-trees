@@ -3,10 +3,10 @@ let interactCtx = interactCanvas.getContext('2d');
 let canvas = document.querySelector('.field');
 let ctx = canvas.getContext('2d');
 
-interactCanvas.width = window.innerWidth;
-interactCanvas.height = window.innerHeight;
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+interactCanvas.width = 1920; // window.innerWidth;
+interactCanvas.height = 1080; // window.innerHeight;
+canvas.width = 1920; // window.innerWidth;
+canvas.height = 1080; // window.innerHeight;
 
 const maxBlockSize = 200;
 const minBlockSize = 110;
@@ -112,9 +112,9 @@ function updateCoordinates(e) {
     reset();
 }
 function setCoords() {
-    coordsIn.value = 
-        Math.floor(-(offset.x - normalize(offset.x, step) + step / 2) / step) + ',' 
-        + ((offset.y - normalize(offset.y, step)) / step);
+    coordsIn.value = '';
+        // Math.floor(-(offset.x - normalize(offset.x, step) + canvas.width / 2) / step) + ',' 
+        // + ((offset.y - normalize(offset.y, step)) / step);
 }
 const coordsIn = document.getElementById("coordinates");
 coordsIn.addEventListener("change", updateCoordinates);
@@ -230,10 +230,10 @@ interactCanvas.addEventListener('pointerleave', e => {
 
 window.addEventListener('resize', () => {
     // step = Math.max(minBlockSize, Math.min(maxBlockSize, window.innerWidth / 8));
-    interactCanvas.width = window.innerWidth;
-    interactCanvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // interactCanvas.width = window.innerWidth;
+    // interactCanvas.height = window.innerHeight;
+    // canvas.width = window.innerWidth;
+    // canvas.height = window.innerHeight;
     draw();
 }, true);
 

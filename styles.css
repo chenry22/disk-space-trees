@@ -10,12 +10,14 @@ body, html {
 .field { 
     z-index: 1; 
     background: rgb(227, 245, 239);
+    touch-action: none;
 }
 .interaction { 
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2; 
+    touch-action: none;
 }
 
 #cursor-container {
