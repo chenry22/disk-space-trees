@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>disk SPACE</title>
+    <link rel="stylesheet" href="styles.css"/>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Freckle+Face&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!--
+    Source - https://stackoverflow.com/a/66736764
+    Posted by trincot, modified by community. See post 'Timeline' for change history
+    Retrieved 2026-10-04, License - CC BY-SA 4.0
+    -->
+    <canvas class="field"></canvas>
+    <canvas class="interaction"></canvas>
+
+    <div class="overlay">
+        <div class="header">
+            <div class="top-left">
+                <div class="logo-icon">✿</div>
+                <input 
+                    type="text"
+                    id="coordinates"
+                    name="coordinates"
+                    placeholder="x, y"
+                    size="6"/>
+            </div>
+            <div class="top-right">?</div>
+        </div>
+
+        <div class="footer">
+            <div id="user-count"><span>-</span> active</div>
+            <input style="display: none;"
+                type="file"
+                id="file-input"
+                name="file"/>
+            <!-- TODO: chatbox right aligned -->
+        </div>
+    </div>
+    
+    <div id="cursor-container"></div>
+
+    <script src="fileUpload.js"></script>
+    <script src="grid.js"></script>
+
+    <script type="module" src="firebase.js"></script>
+
+    <!-- playhtml eyes emoji -->
+    <script type="module" src="play.js"></script>
+</body>
+</html>

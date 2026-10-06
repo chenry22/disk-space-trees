@@ -1,0 +1,95 @@
+body, html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Freckle Face';
+}
+
+.field { 
+    z-index: 1; 
+    background: rgb(227, 245, 239);
+}
+.interaction { 
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2; 
+}
+
+#cursor-container {
+    z-index: 4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    pointer-events: none;
+}
+
+.overlay {
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100dvw - 16px);
+    height: calc(100dvh - 16px);
+    pointer-events: none;
+    margin: 8px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header > * {
+    pointer-events: all;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+
+.top-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    font-size: 2.6rem;
+    line-height: 1.6rem;
+}
+.top-left:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+.top-left input {
+    font-family: 'Freckle Face';
+    letter-spacing: 0.2rem;
+    padding: 1px 4px;
+    font-size: 1.2rem;
+    text-align: center;
+}
+.top-right {
+    margin-right: 16px;
+    padding: 8px;
+    border-radius: 100%;
+    width: 1.2rem;
+    text-align: center;
+}
+.top-right:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.footer {
+    padding: 6px 8px;
+}
+#user-count {
+    font-size: 1.2rem;
+    letter-spacing: 0.02rem;
+    opacity: 0.8;
+    color: rgb(11, 59, 86);
+}
