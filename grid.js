@@ -1,10 +1,10 @@
 let interactCanvas = document.querySelector('.interaction');
 let interactCtx = interactCanvas.getContext('2d');
-interactCanvas.width = window.innerWidth;
-interactCanvas.height = window.innerHeight;
-
 let canvas = document.querySelector('.field');
 let ctx = canvas.getContext('2d');
+
+interactCanvas.width = window.innerWidth;
+interactCanvas.height = window.innerHeight;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -138,15 +138,15 @@ const reset = () => {
     window.requestAnimationFrame(draw);
 }
 
-canvas.addEventListener("mousedown", e => {
+canvas.addEventListener("pointerdown", e => {
     reset();
     start = getPos(e);
 });
 
-canvas.addEventListener("mouseup", reset);
-canvas.addEventListener("mouseleave", reset);
+canvas.addEventListener("pointerup", reset);
+canvas.addEventListener("pointerleave", reset);
 
-canvas.addEventListener("mousemove", e => {
+canvas.addEventListener("pointermove", e => {
     // Only move the grid when we registered a mousedown event
     if (!start) return;
     pos = getPos(e);
@@ -197,7 +197,7 @@ function drawInteract(e) {
     }
 }
 
-interactCanvas.addEventListener('mousemove', e => {
+interactCanvas.addEventListener('pointermove', e => {
     drawInteract(e);
     const clonedEvent = new MouseEvent(e.type, e);
     canvas.dispatchEvent(clonedEvent);
@@ -206,12 +206,12 @@ interactCanvas.addEventListener('mousemove', e => {
 let down = null;
 let key = '';
 
-interactCanvas.addEventListener('mousedown', e => {
+interactCanvas.addEventListener('pointerdown', e => {
     down = { x : e.clientX, y : e.clientY };
     const clonedEvent = new MouseEvent(e.type, e);
     canvas.dispatchEvent(clonedEvent);
 });
-interactCanvas.addEventListener('mouseup', e => {
+interactCanvas.addEventListener('pointerup', e => {
     if (down && down.x === e.clientX && down.y === e.clientY) {
         const xHover = Math.floor((e.clientX - normalize(offset.x, step)) / step) * step;
         const yHover = Math.floor((e.clientY - normalize(offset.y, step)) / step) * step;
@@ -223,7 +223,7 @@ interactCanvas.addEventListener('mouseup', e => {
     const clonedEvent = new MouseEvent(e.type, e);
     canvas.dispatchEvent(clonedEvent);
 });
-interactCanvas.addEventListener('mouseleave', e => {
+interactCanvas.addEventListener('pointerleave', e => {
     const clonedEvent = new MouseEvent(e.type, e);
     canvas.dispatchEvent(clonedEvent);
 });
