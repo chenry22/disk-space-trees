@@ -1,3 +1,7 @@
+// canvas only used for drawing
+// offset set to 0,0 on load
+// offset used for grid system.
+
 let interactCanvas = document.querySelector('.interaction');
 let interactCtx = interactCanvas.getContext('2d');
 let canvas = document.querySelector('.field');
@@ -15,88 +19,140 @@ let gridBlockBorderColor = "#d1e5d0";
 
 const inp = document.getElementById('file-input');
 
-let offset = { x: 0, y: 0 };
+function worldToScreen(x, y) {
+    return {
+        x: window.innerWidth / 2 + offset.x + x * step,
+        y: window.innerHeight / 2 + offset.y - y * step
+    };
+}
+function screenToWorld(x, y) {
+    return {
+        x: (x - window.innerWidth / 2 - offset.x) / step,
+        y: (window.innerHeight / 2 + offset.y - y) / step
+    };
+}
+function getGridCoordinate(x, y) {
+    const world = screenToWorld(x, y);
+    return { x: Math.floor(world.x), y: Math.floor(world.y) };
+}
+
+
+let offset = { x: -step / 2, y: -step / 2 };
 let startOffset = { x: 0, y: 0 };
 
-// trees are { x: number, y: number, hash: string, id: string }
-var trees = {
-    // '1,0' : { hash: "3aa34aaa00860754d4e4099c86c1e90a8cb4f0379e836e675423f02053d65843" },
-    // '1,1' : { hash: "654203691c7293af161eb41f8edfce346e3c93bb85b5d0ca31d0013bb0a78894" },
-    // '3,2' : { hash: "65e8d65df23f4898f4ab3a96de7af49cb7a8960d95af5eb1912a8c958a6fa6fe" },
-    // '-1,0' : { hash: "e68a65f839da6a0c075ff2f76a6f251aed4d033895a3b947d0a4be41169f6355" },
-    // '-2,2' : { hash: "ad4e6ddc506091be2e7825b5b8daa91c59e269cc41edc775a6c2c4a1737744ab" }
-};
+// trees are { x, y, hash, name, title, description}
+var trees = {};
 const treeAt = (x, y) => trees[x + ',' + y];
 
-function drawGridLines(left, top, right, bottom) {
+function drawGridLines() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
     ctx.beginPath();
-    for (let x = left; x < right; x += step) {
-        ctx.moveTo(x, top);
-        ctx.lineTo(x, bottom);
+    const minX = Math.floor(
+        (-width / 2 - offset.x) / step
+    ) - 1;
+    const maxX = Math.ceil(
+        (width / 2 - offset.x) / step
+    ) + 1;
+    const minY = Math.floor(
+        (-height / 2 + offset.y) / step
+    ) - 1;
+    const maxY = Math.ceil(
+        (height / 2 + offset.y) / step
+    ) + 1;
+
+    for (let xLabel = minX; xLabel <= maxX; xLabel++) {
+        const { x } = worldToScreen(xLabel, 0);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
     }
-    for (let y = top; y < bottom; y += step) {
-        ctx.moveTo(left, y);
-        ctx.lineTo(right, y);
+    for (let yLabel = minY; yLabel <= maxY; yLabel++) {
+        const { y } = worldToScreen(0, yLabel);
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
     }
     ctx.strokeStyle = gridBlockBorderColor;
     ctx.stroke();
 }
 
-function drawBlocks(left, top, right, bottom, time) {
-    for (let x = left; x < right; x += step) {
-        for (let y = top; y < bottom; y += step) {
-            const xLabel = Math.floor(
-                (x - startOffset.x - canvas.width / 2) / step
-            );
-            const yLabel = Math.floor(
-                (startOffset.y + canvas.height / 2 - y) / step
-            );
+function drawBlocks(time) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const minX = Math.floor(
+        (-width / 2 - offset.x) / step
+    ) - 1;
+    const maxX = Math.ceil(
+        (width / 2 - offset.x) / step
+    ) + 1;
+    const minY = Math.floor(
+        (-height / 2 + offset.y) / step
+    ) - 1;
+    const maxY = Math.ceil(
+        (height / 2 + offset.y) / step
+    ) + 1;
+
+    for (let xLabel = minX; xLabel <= maxX; xLabel++) {
+        for (let yLabel = minY; yLabel <= maxY; yLabel++) {
+            const { x, y } = worldToScreen(xLabel, yLabel);
+            if (x + step < 0 || x > width || y + step < 0 || y > height) continue;
 
             ctx.font = "10px serif";
-            ctx.fillStyle = '#02020230';
-            ctx.fillText(xLabel + ', ' + yLabel, x + 5, y + 15);
+            ctx.fillStyle = "#02020230";
+            ctx.fillText( `${xLabel}, ${yLabel}`, x + 5, y + 15);
 
-            let tree = treeAt(xLabel, yLabel);
-            if (tree) {
-                const moundCenterY = y + step - step / 10;
-                ctx.beginPath();
-                ctx.moveTo(x + step * 0.32, moundCenterY);
-                ctx.quadraticCurveTo(
-                    x + step * 0.5, y + step - step * 0.22,
-                    x + step * 0.68, moundCenterY
-                );
-                ctx.quadraticCurveTo(
-                    x + step * 0.5, y + step - step * 0.02,
-                    x + step * 0.32, moundCenterY
-                );
+            const tree = treeAt(xLabel, yLabel );
+            if (!tree) continue;
 
-                ctx.closePath();
-                ctx.fillStyle = "#423a30";
-                ctx.fill();
+            const moundCenterY = y + step - step / 10;
+            ctx.beginPath();
+            ctx.moveTo(x + step * 0.32, moundCenterY);
+            ctx.quadraticCurveTo(
+                x + step * 0.5, y + step - step * 0.22,
+                x + step * 0.68, moundCenterY
+            );
+            ctx.quadraticCurveTo(
+                x + step * 0.5, y + step - step * 0.02,
+                x + step * 0.32, moundCenterY
+            );
 
-                branch(ctx, tree.hash, 
-                    x + step / 2, y + step - step / 9, 
-                    x + step / 2, y + step - step * 0.48, 
-                    12, tree, time
-                );
-            }
+            ctx.closePath();
+            ctx.fillStyle = "#423a30";
+            ctx.fill();
+
+            branch(ctx, tree.hash, 
+                x + step / 2, y + step - step / 9, 
+                x + step / 2, y + step - step * 0.48, 
+                12, tree, time
+            );
         }
     }
 }
 
 function draw(time, loop = false) {
-    let left = -Math.ceil(canvas.width / step) * step;
-    let top = -Math.ceil(canvas.height / step) * step;
-    let right = 2 * canvas.width;
-    let bottom = 2 * canvas.height;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGridLines();
+    drawBlocks(time);
 
-    ctx.clearRect(left, top, right - left, bottom - top);
-    drawGridLines(left, top, right, bottom);
-    drawBlocks(left, top, right, bottom, time);
-    
     if (loop) {
-        window.requestAnimationFrame(t => draw(t, loop));
+        window.requestAnimationFrame(t => draw(t, true));
     }
+}
+
+const reset = () => {
+    start = null;
+    startOffset = { x : offset.x, y: offset.y };
+    ctx.setTransform(
+        1, 0, 0, 
+        1, offset.x, offset.y
+    );
+    interactCtx.setTransform(
+        1, 0, 0, 
+        1, offset.x, offset.y
+    );
+    window.requestAnimationFrame(draw);
 }
 
 
@@ -107,64 +163,63 @@ function updateCoordinates(e) {
     if (coords.length < 2) return;
     const x = parseInt(coords[0]);
     const y = parseInt(coords[1]);
-    if (x === undefined || y === undefined) return;
-    offset = { x: -x * step - step / 2, y: y * step };
+    if (isNaN(x) || isNaN(y)) return;
+    offset = { 
+        x: -x * step - step / 2, 
+        y: y * step - step / 2,
+    };
     reset();
+    draw();
 }
 function setCoords() {
     coordsIn.value = 
-        Math.floor(-(offset.x - normalize(offset.x, step) + step / 2) / step) + ',' 
-        + ((offset.y - normalize(offset.y, step)) / step);
+        Math.floor(-(offset.x + step / 2) / step) 
+        + ',' + Math.floor((offset.y + step) / step);
 }
 const coordsIn = document.getElementById("coordinates");
 coordsIn.addEventListener("change", updateCoordinates);
+
+
 
 // Mouse event handling:
 let start, pos;
 const getPos = (e) => ({ x: e.clientX, y: e.clientY });
 const normalize = (value, step) => value % step;
 
-const reset = () => {
-    start = null;
-    startOffset = { x : offset.x - normalize(offset.x, step), y: offset.y - normalize(offset.y, step) };
-    ctx.setTransform(
-        1, 0, 0, 
-        1, normalize(offset.x, step), normalize(offset.y, step)
-    );
-    interactCtx.setTransform(
-        1, 0, 0, 
-        1, normalize(offset.x, step), normalize(offset.y, step)
-    );
-    window.requestAnimationFrame(draw);
-}
-
 canvas.addEventListener("pointerdown", e => {
-    reset();
     start = getPos(e);
+    startOffset = { x: offset.x, y: offset.y };
+    canvas.setPointerCapture(e.pointerId);
 });
-
-canvas.addEventListener("pointerup", reset);
-canvas.addEventListener("pointerleave", reset);
-
+canvas.addEventListener("pointerup", e => {
+    if (canvas.hasPointerCapture(e.pointerId)) {
+        canvas.releasePointerCapture(e.pointerId);
+    }
+    reset();
+});
+canvas.addEventListener("pointerleave", e => {
+    if (canvas.hasPointerCapture(e.pointerId)) {
+        canvas.releasePointerCapture(e.pointerId);
+    }
+    reset();
+});
 canvas.addEventListener("pointermove", e => {
     // Only move the grid when we registered a mousedown event
     if (!start) return;
     pos = getPos(e);
 
-    offset.x += pos.x - start.x;
-    offset.y += pos.y - start.y;
-    ctx.translate(pos.x - start.x, pos.y - start.y);
-    interactCtx.setTransform(
-        1, 0, 0, 
-        1, normalize(offset.x, step), normalize(offset.y, step)
-    );
-
-    document.getElementById('cursor-container')
-        .style.transform = `translate(${offset.x}px, ${offset.y}px)`;
-
-    window.requestAnimationFrame(draw);
+    const dx = pos.x - start.x;
+    const dy = pos.y - start.y;
+    offset.x += dx;
+    offset.y += dy;
     start = pos;
+
+    document.getElementById('cursor-container').style.transform =
+        `translate(${offset.x}px, ${offset.y}px)`;
+
+    draw();
     setCoords();
+    drawInteract(e);
 });
 
 function keyFromHover(x, y) {
@@ -178,23 +233,21 @@ function keyFromHover(x, y) {
 }
 
 function drawInteract(e) {
-    const xHover = Math.floor((e.clientX - normalize(offset.x, step)) / step) * step;
-    const yHover = Math.floor((e.clientY - normalize(offset.y, step)) / step) * step;
+    const { xLabel, yLabel } = screenToWorld(e.clientX, e.clientY);
+    const { x, y } = worldToScreen(xLabel, yLabel);
 
-    // TODO: different behavior if tree or no tree
-
+    interactCtx.setTransform(1, 0, 0, 1, 0, 0);
     interactCtx.clearRect(
-        -interactCanvas.width, -interactCanvas.height, 
-        interactCanvas.width * 3, interactCanvas.height * 3
+        0, 0,
+        interactCanvas.width,
+        interactCanvas.height
     );
 
-    const tree = trees[keyFromHover(xHover, yHover)];
-    if (tree) {
+    const tree = treeAt(xLabel, yLabel);
+    if (tree) return;
 
-    } else {
-        interactCtx.fillStyle = 'rgba(254, 254, 254, 0.24)'; // Semi-transparent highlight overlay
-        interactCtx.fillRect(xHover, yHover, step, step);
-    }
+    interactCtx.fillStyle = 'rgba(254, 254, 254, 0.24)';
+    interactCtx.fillRect(x, y, step, step);
 }
 
 interactCanvas.addEventListener('pointermove', e => {
@@ -230,10 +283,13 @@ interactCanvas.addEventListener('pointerleave', e => {
 
 window.addEventListener('resize', () => {
     // step = Math.max(minBlockSize, Math.min(maxBlockSize, window.innerWidth / 8));
-    interactCanvas.width = window.innerWidth;
-    interactCanvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    interactCanvas.width = window.innerWidth;
+    interactCanvas.height = window.innerHeight;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    interactCtx.setTransform(1, 0, 0, 1, 0, 0);
     draw();
 }, true);
 
